@@ -17,8 +17,7 @@ function Graph(props) {
             // console.log(data.length)
             if (data.length) {
                 const svg = select(svgRef.current)
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("viewBox", [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom]);
 
                 svg.selectAll("*").remove();
 
@@ -71,10 +70,10 @@ function Graph(props) {
     }
 
     useEffect(() => {
-        let id = setInterval(() => {
-            fetchData();
-        }, 1000);
-        return () => clearInterval(id);
+        // let id = setInterval(() => {
+        //     fetchData();
+        // }, 1000);
+        // return () => clearInterval(id);
     }, [])
 
     useEffect(() => {

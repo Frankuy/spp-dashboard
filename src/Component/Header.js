@@ -1,10 +1,15 @@
 import '../Styles/Header.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCircle } from '@fortawesome/free-solid-svg-icons'
 
 function Header() {
   return (
     <div className="App_header">
-      <p className="Title">Solar Power Plant Monitoring</p>
-      <p className="Indicator">LIVE</p>
+      <div className="Title">Solar Power Plant Monitoring</div>
+      <div className="Indicator">
+        <FontAwesomeIcon icon={faCircle} />
+        <span className="Live">LIVE</span>
+      </div>
     </div>
   );
 }

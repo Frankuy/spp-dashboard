@@ -1,10 +1,9 @@
 .App_graph {
-  grid-area: graph;
   color: white;
   background-color: var(--secondary-color);
   border-radius: 12px;
-  align-self: stretch;
-  padding: 0px 12px;
+  box-sizing: border-box;
+  margin: 0px 4px;
 }
 
 .axis path {

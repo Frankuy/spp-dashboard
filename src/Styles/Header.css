@@ -1,24 +1,51 @@
 .App_header {
-  /* display: grid;
-  grid-area: header;
-  place-content: center; */
-  /* text-align: center; */
+  width: 100%;
   color: white;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .Title {
-  margin: 0;
   text-align: center;
   font-weight: bold;
   font-size: 24px;
 }
 
 .Indicator {
-  justify-self: center;
   font-weight: bold;
-  margin-top: 4px;
   font-size: 12px;
   background-color: red;
-  padding: 6px 12px;
-  border-radius: 8px;
+  padding: 0.5em 1em;
+  margin: 1em;
+  border-radius: 1em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Live {
+  margin-left: 4px;
+}
+
+.fa-circle {
+  animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .Title {
+    font-size: 12px;
+  }
+
+  .Indicator {
+    font-size: 8px;
+  }
 }
