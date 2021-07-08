@@ -1,38 +1,31 @@
+:root {
+    --primary-color:#16192a;
+    --secondary-color: #1f253b;
+    --red: #f33d6c;
+    --blue: #275cfe;
+    --green: #2db98f;
+}
+
 .App {
-  text-align: center;
+  background-color: var(--primary-color);
+  /* min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 0.3fr 1fr 1fr;
+  grid-template-areas: 
+    "header header"
+    "generator sensor"
+    "generator graph";
+  column-gap: 24px; */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@media (max-width: 1024px) {
+  /* .App {
+    grid-template-areas: 
+      "header header"
+      "generator generator"
+      "sensor graph";
+  } */
 }

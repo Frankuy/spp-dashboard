@@ -1,23 +1,18 @@
-import logo from './logo.svg';
 import './App.css';
+import Generator from './Component/Generator';
+import Graph from './Component/Graph';
+import Header from './Component/Header';
+import Sensor from './Component/Sensor';
 
 function App() {
+  var margin = {top: 10, right: 30, bottom: 30, left: 60}
+    
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      <Generator width={975} height={810} />
+      <Sensor width={975} height={300} />
+      <Graph width={975} height={300} margin={margin} />
     </div>
   );
 }

@@ -1,0 +1,22 @@
+.App_sensor {
+  grid-area: sensor;
+  color: white;
+  background-color: var(--secondary-color);
+  border-radius: 12px;
+  align-self: stretch;
+  padding: 0px 12px;
+}
+
+.sensor {
+  cursor: pointer;
+}
+
+.sensor-rect {
+  stroke: white;
+  stroke-width: 1;
+}
+
+.sensor-text {
+  fill: white;
+  stroke: none;
+}
