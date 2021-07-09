@@ -12,15 +12,23 @@ function Slider(props) {
 
     React.useEffect(() => {
         var labelTick = d3.select('.label-tick').selectAll('text').data(x.ticks(10));
-        labelTick.enter()
-            .append('text')
-            .attr('x', x)
+        var g = labelTick.enter()
+            .append('g')
+            .attr('transform', d => `translate(${x(d)}, 0)`)
+        g.append('text')
             .attr('y', 10)
             .attr('text-anchor', 'middle')
             .attr('fill', 'white')
             .attr('font-size', 12)
-            .text(d => d);
+            .text(d => d)
+        g.append('line')
+            .attr('y1', -10)
+            .attr('y2', -16)
+            .attr('stroke', 'white')
         labelTick.exit().remove();
+
+        // var labelTick = d3.select('.label-tick')
+        // labelTick.call(d3.axisBottom(x));
 
         var minHandler = d3.select('.min');
         var minText = minHandler.select('text');
@@ -84,7 +92,7 @@ function Slider(props) {
                     <circle r={radius(maxLoc)} fill={'white'}></circle>
                 </g>
             </g>
-            <g className='label-tick' transform={`translate(0, 110)`}></g>
+            <g className='label-tick' transform={`translate(0, 100)`}></g>
         </g>
     )
 }
