@@ -1,167 +1,123 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { select, scaleSqrt, max, geoPath, geoMercator } from 'd3';
+import React from 'react';
+import * as d3 from 'd3';
 import '../Styles/Generator.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import Slider from './Slider';
+import Tooltip from './Tooltip';
 
 const margin = { top: 10, right: 10, bottom: 10, left: 10 },
   width = 975 - margin.left - margin.right,
   height = 810 - margin.top - margin.bottom;
 
 function Generator() {
-  const [map, setMap] = useState();
-  const [data, setData] = useState([]);
-
-  const svgRef = useRef();
+  const [map, setMap] = React.useState(null);
+  const [data, setData] = React.useState([]);
+  const [tooltip, setTooltip] = React.useState();
 
   const getMap = () => {
-    fetch('india_state.geojson', {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
+    d3.json('india_state.geojson').then((map) => {
+      setMap(map);
     })
-      .then((response) => response.json())
-      .then((map) => {
-        setMap(map);
-      });
   }
-
-  const drawMap = useCallback(
-    () => {
-      if (map != null) {
-        const svg = select(svgRef.current)
-          .attr("viewBox", [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom])
-
-        const container = svg.append("g")
-          .attr("class", "container")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // container.remove();
-
-        const projection = geoMercator().fitSize([width, height], map);
-
-        const pathGenerator = geoPath().projection(projection);
-
-        const radius = scaleSqrt([0, max(data, d => d.Capacity)], [0, 30]);
-
-        // Draw India Map as Background
-        var mapSvg = container.selectAll(".province").data(map.features);
-
-        mapSvg.enter().append("path")
-          .attr("class", "province")
-          .attr("fill", "#6f6c7f")
-          .attr("d", feature => pathGenerator(feature));
-
-        mapSvg.exit().remove();
-
-        // Draw Data as Circle
-        var circleSvg = container.selectAll(".Circle").data(data);
-
-        circleSvg
-          .enter()
-          .append("circle")
-          .attr("class", "Circle")
-          .attr("fill", "red")
-          .attr("cx", d => projection([d.Longitude, d.Latitude])[0])
-          .attr("cy", d => projection([d.Longitude, d.Latitude])[1])
-          .attr("r", d => radius(d.Capacity))
-          .on("click", function (d, i) {
-            container.selectAll(".Circle").classed("Active", false);
-            select(this).classed("Active", !select(this).classed("Active"))
-          })
-          .on("mouseover", function (d, i) {
-            container.select('.Tooltip-' + i.Code).transition()
-              .duration(300)
-              .style('opacity', 1);
-          })
-          .on("mouseout", function (d, i) {
-            container.select('.Tooltip-' + i.Code).transition()
-              .duration(300)
-              .style('opacity', 0);
-          })
-
-        circleSvg.exit().remove();
-
-        // Draw Tooltip
-        var tooltip = container.selectAll(".Tooltip").data(data);
-
-        tooltip
-          .enter()
-          .append("text")
-          .attr("class", d => "Tooltip Tooltip-" + d.Code)
-          .attr('x', d => projection([d.Longitude, d.Latitude])[0])
-          .attr('y', d => projection([d.Longitude, d.Latitude])[1])
-          .attr('dy', d => radius(d.Capacity) + 16)
-          .style("opacity", 0)
-          .text(d => `${d.Name} - ${d.Capacity} MW`)
-      }
-    },
-    [map, width, height, data],
-  )
-
-  // const drawMap = (map) => {
-  //   if (map != null) {
-  //     const svg = select(svgRef.current).attr("viewBox", [0, 0, width, height]);
-
-  //     const projection = geoMercator().fitSize([width, height], map)
-
-  //     const pathGenerator = geoPath().projection(projection)
-
-  //     const radius = scaleSqrt([0, max(data, d => d.value)], [0, 10])
-
-  //     svg.append('g')
-  //       .selectAll(".province")
-  //       .data(map.features)
-  //       .enter()
-  //       .append("path")
-  //       .attr("class", "province")
-  //       .attr("fill", "#6f6c7f")
-  //       .attr("d", feature => pathGenerator(feature));
-
-  //     svg.append("g")
-  //       .selectAll("circle")
-  //       .data(data)
-  //       .enter()
-  //       .append("circle")
-  //       .attr("fill", "red")
-  //       .attr("cx", d => projection(d.position)[0])
-  //       .attr("cy", d => projection(d.position)[1])
-  //       .attr("r", d => radius(d.value))
-  //       .on("click", function () {
-  //         select(this).style("fill", "orange")
-  //       })
-  //   }
 
   const fetchData = () => {
-    fetch('http://localhost:5001/power-plant')
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-      });
+    d3.json('http://localhost:5001/power-plant').then((data) => {
+      setData(data);
+    })
   }
 
-  useEffect(() => {
+  const drawMap = React.useCallback(() => {
+    if (map != null) {
+      var projection = d3.geoMercator().fitSize([width, height - 200], map);
+
+      var pathGenerator = d3.geoPath().projection(projection);
+
+      // Draw India Map as Background
+      var mapSVG = d3.select('.map').selectAll(".province").data(map.features);
+      mapSVG.enter().append("path")
+        .attr("class", "province")
+        .attr("fill", "steelblue")
+        .attr("d", feature => pathGenerator(feature));
+      mapSVG.exit().remove();
+    }
+  }, [map])
+
+  const drawData = React.useCallback(() => {
+    if (map != null && data.length > 0) {
+      var projection = d3.geoMercator().fitSize([width, height - 200], map);
+
+      var radius = d3.scaleSqrt().domain(d3.extent(data, d => d.Capacity)).range([8, 16]).clamp(true)
+
+      // Draw Data as Circle
+      var circleSVG = d3.select(".data").selectAll(".circle").data(data);
+      circleSVG
+        .enter()
+        .append("circle")
+        .attr("class", "circle")
+        .attr("cx", d => projection([d.Longitude, d.Latitude])[0])
+        .attr("cy", d => projection([d.Longitude, d.Latitude])[1])
+        .attr("r", d => radius(d.Capacity))
+        .on("click", function (d, i) {
+          d3.selectAll(".circle").classed("active", false);
+          d3.select(this).classed("active", !d3.select(this).classed("active"))
+        })
+        .on("mousemove", function (event, data) {
+          setTooltip(`${data.Name} - ${data.Capacity} MW`)
+          var tooltipSVG = d3.select('.tooltip')
+          tooltipSVG
+            .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
+            .transition()
+            .duration(300)
+            .style('opacity', 1);
+        })
+        .on("mouseout", function (d, i) {
+          var tooltipSVG = d3.select('.tooltip')
+          tooltipSVG.transition()
+            .duration(300)
+            .style('opacity', 0);
+        })
+      circleSVG.exit().remove();
+    }
+  }, [map, data])
+
+  const onChangeSlider = React.useCallback((min, max) => {
+    var radius = d3.scaleSqrt().domain(d3.extent(data, d => d.Capacity)).range([8, 16]).clamp(true)
+    var circles = d3.selectAll(".circle");
+    circles
+      .transition()
+      .duration(100)
+      .attr('r', d => {
+        if (d.Capacity >= min && d.Capacity <= max) {
+          return radius(d.Capacity);
+        }
+        return 0;
+      })
+  }, [data]);
+
+  React.useEffect(() => {
     getMap();
+    // let id = setInterval(() => {
+    //   fetchData();
+    // }, 1000);
+    // return () => clearInterval(id);
+    fetchData();
   }, [])
 
-  useEffect(() => {
-    let id = setInterval(() => {
-      fetchData();
-    }, 1000);
-    return () => clearInterval(id);
-  }, [])
-
-  useEffect(() => {
+  React.useEffect(() => {
     drawMap();
   }, [drawMap])
 
-  if (map == null || data == []) {
+  React.useEffect(() => {
+    drawData();
+  }, [drawData])
+
+  if (map == null) {
     return (
       <div className="App_generator">
-        <div className="Loading">
+        <div className="loading">
           <FontAwesomeIcon icon={faSpinner} spin />
-          <span className="Loading-text">Please Wait...</span>
+          <span className="loading-text">Please Wait...</span>
         </div>
       </div>
     )
@@ -170,8 +126,14 @@ function Generator() {
   return (
     <div className="App_generator">
       <svg
-        ref={svgRef}
+        viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}
       >
+        <g transform={`translate(${margin.left}, ${margin.top + 160})`}>
+          <g className="map" />
+          <g className="data" />
+          <Tooltip width={300} height={20} text={tooltip} />
+        </g>
+        <Slider width={width - margin.left - margin.right} margin={margin} data={data} onChange={onChangeSlider} />
       </svg>
     </div>
   )
