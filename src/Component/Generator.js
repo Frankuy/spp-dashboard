@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import '../Styles/Generator.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faTimes, faSun } from '@fortawesome/free-solid-svg-icons';
 import Slider from './Slider';
 import Tooltip from './Tooltip';
 
@@ -29,21 +29,23 @@ function Generator(props) {
     })
   }
 
-  const drawMap = React.useCallback(() => {
-    if (map != null) {
-      var projection = d3.geoMercator().fitSize([width, height - 200], map);
+  const drawMap = React.useCallback(
+    () => {
+      if (map != null) {
+        var projection = d3.geoMercator().fitSize([width, height - 200], map);
 
-      var pathGenerator = d3.geoPath().projection(projection);
+        var pathGenerator = d3.geoPath().projection(projection);
 
-      // Draw India Map as Background
-      var mapSVG = d3.select('.map').selectAll(".province").data(map.features);
-      mapSVG.enter().append("path")
-        .attr("class", "province")
-        .attr("fill", "steelblue")
-        .attr("d", feature => pathGenerator(feature));
-      mapSVG.exit().remove();
-    }
-  }, [map])
+        // Draw India Map as Background
+        var mapSVG = d3.select('.map').selectAll(".province").data(map.features);
+        mapSVG.enter().append("path")
+          .attr("class", "province")
+          .attr("fill", "steelblue")
+          .attr("d", feature => pathGenerator(feature));
+        mapSVG.exit().remove();
+      }
+    }, [map]
+  )
 
   const drawData = React.useCallback(
     () => {
@@ -66,6 +68,7 @@ function Generator(props) {
 
             // Set Active Circle
             d3.selectAll(".circle").classed("active", false);
+            d3.select(this).classed("active", true);
 
             // Zoom In / Zoom Out
             var [x, y] = projection([data.Longitude, data.Latitude])
@@ -73,35 +76,45 @@ function Generator(props) {
             mapContainer
               .transition()
               .duration(750)
-              .attr('transform', `translate(${margin.left}, ${margin.top + 160})`)
-            mapContainer
-              .classed("active", !mapContainer.classed("active"));
-            if (mapContainer.classed("active")) {
-              d3.select(this).classed("active", true);
-              mapContainer
-                .transition()
-                .duration(750)
-                .attr('transform', `translate(${width / 2}, ${height / 2})scale(4)translate(${-x}, ${-y})`)
-            }
+              .attr('transform', `translate(${width / 2}, ${height / 2})scale(4)translate(${-x}, ${-y})`)
+            var detail = d3.select('.generator-detail')
+            detail
+              .transition()
+              .duration(750)
+              .attr('opacity', 1)
+              .attr('y', height / 2)
           })
           .on("mousemove", function (event, data) {
-            setTooltip(`${data.Name} - ${data.Capacity} MW`);
-            var tooltipSVG = d3.select('.tooltip');
-            tooltipSVG
-              .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
-              .transition()
-              .duration(300)
-              .style('opacity', 1);
+            if (!d3.select(this).classed("active")) {
+              setTooltip(`${data.Name} - ${data.Capacity} MW`);
+              var tooltipSVG = d3.select('.tooltip');
+              tooltipSVG
+                .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
+                .transition()
+                .duration(300)
+                .style('opacity', 1);
+            }
+            else {
+              var tooltipSVG = d3.select('.tooltip');
+              tooltipSVG.style('opacity', 0);
+            }
           })
           .on("mouseout", function (event, data) {
-            var tooltipSVG = d3.select('.tooltip');
-            tooltipSVG.transition()
-              .duration(300)
-              .style('opacity', 0);
+            if (!d3.select(this).classed("active")) {
+              var tooltipSVG = d3.select('.tooltip');
+              tooltipSVG.transition()
+                .duration(300)
+                .style('opacity', 0);
+            }
+            else {
+              var tooltipSVG = d3.select('.tooltip');
+              tooltipSVG.style('opacity', 0);
+            }
           })
         circleSVG.exit().remove();
       }
-    }, [map, data, onClick])
+    }, [map, data, onClick]
+  )
 
   const onChangeSlider = React.useCallback(
     (min, max) => {
@@ -116,7 +129,29 @@ function Generator(props) {
           }
           return 0;
         })
-    }, [data]);
+    }, [data]
+  );
+
+  const onClickClose = React.useCallback(
+    () => {
+      d3.selectAll(".circle").classed("active", false);
+
+      var mapContainer = d3.select('.map-container');
+      mapContainer
+        .transition()
+        .duration(750)
+        .attr('transform', `translate(${margin.left}, ${margin.top + 160})`)
+      mapContainer
+        .classed("active", !mapContainer.classed("active"));
+
+      var detail = d3.select('.generator-detail')
+      detail
+        .transition()
+        .duration(750)
+        .attr('opacity', 0)
+        .attr('y', height)
+    }
+  )
 
   React.useEffect(() => {
     getMap();
@@ -152,6 +187,40 @@ function Generator(props) {
           <g className="data" />
           <Tooltip width={300} height={20} text={tooltip} />
         </g>
+        <foreignObject opacity={0} className="generator-detail" x={width / 2 + 140} y={height} width={width / 2 - 140} height={height / 2}>
+          <div className="detail-container">
+            <div className="close">
+              <FontAwesomeIcon icon={faTimes} color={'white'} onClick={onClickClose} />
+            </div>
+            <span className="font-weight-bold">Kamuthi Solar Power Plant</span>
+            <div className="detail-table">
+              <div className="row">
+                <FontAwesomeIcon icon={faSun} size='5x' />
+                <span className="value"><span className="number">32</span>&#176;C</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Code</span>
+                <span className="value">1</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Name</span>
+                <span className="value">ASDASDASDASD</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Capacity</span>
+                <span className="value">200 MW</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Longitude</span>
+                <span className="value">200 MW</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Latitude</span>
+                <span className="value">200 MW</span>
+              </div>
+            </div>
+          </div>
+        </foreignObject>
         <Slider width={width - margin.left - margin.right} margin={margin} data={data} onChange={onChangeSlider} />
       </svg>
     </div>

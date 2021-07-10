@@ -29,6 +29,43 @@
   margin-left: 4px;
 }
 
+.detail-container {
+  height: 100%;
+  width: 100%;
+  background-color: #29314d;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.detail-table {
+  padding: 12px;
+}
+
+.detail-table .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  margin-bottom: 8px;
+  border-bottom: none;
+}
+
+.detail-table .custom-border {
+  border-bottom: 1px solid steelblue;
+}
+
+.detail-table .row .label {
+  color: lightblue;
+}
+
+.detail-table .row .value {
+  font-weight: bold;
+}
+
+.detail-table .row .number {
+  font-size: 4em;
+}
+
 @media (max-width: 1024px) {
   .App_generator {
     width: 100%;
