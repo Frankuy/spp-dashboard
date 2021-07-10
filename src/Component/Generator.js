@@ -63,8 +63,26 @@ function Generator(props) {
           .attr("r", d => radius(d.Capacity))
           .on("click", function (event, data) {
             onClick(data);
+
+            // Set Active Circle
             d3.selectAll(".circle").classed("active", false);
-            d3.select(this).classed("active", !d3.select(this).classed("active"));
+
+            // Zoom In / Zoom Out
+            var [x, y] = projection([data.Longitude, data.Latitude])
+            var mapContainer = d3.select('.map-container');
+            mapContainer
+              .transition()
+              .duration(750)
+              .attr('transform', `translate(${margin.left}, ${margin.top + 160})`)
+            mapContainer
+              .classed("active", !mapContainer.classed("active"));
+            if (mapContainer.classed("active")) {
+              d3.select(this).classed("active", true);
+              mapContainer
+                .transition()
+                .duration(750)
+                .attr('transform', `translate(${width / 2}, ${height / 2})scale(4)translate(${-x}, ${-y})`)
+            }
           })
           .on("mousemove", function (event, data) {
             setTooltip(`${data.Name} - ${data.Capacity} MW`);
@@ -129,7 +147,7 @@ function Generator(props) {
       <svg
         viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}
       >
-        <g transform={`translate(${margin.left}, ${margin.top + 160})`}>
+        <g className="map-container" transform={`translate(${margin.left}, ${margin.top + 160})`}>
           <g className="map" />
           <g className="data" />
           <Tooltip width={300} height={20} text={tooltip} />
