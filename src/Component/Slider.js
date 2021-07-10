@@ -27,9 +27,6 @@ function Slider(props) {
             .attr('stroke', 'white')
         labelTick.exit().remove();
 
-        // var labelTick = d3.select('.label-tick')
-        // labelTick.call(d3.axisBottom(x));
-
         var minHandler = d3.select('.min');
         var minText = minHandler.select('text');
         minHandler.on("mouseover", () => {
@@ -83,11 +80,11 @@ function Slider(props) {
             <g className='track' transform={`translate(0, 80)`}>
                 <line x1={x.range()[0]} x2={x.range()[1]} stroke='white' strokeWidth={2}></line>
                 <line x1={minLoc} x2={maxLoc} stroke='steelblue' strokeWidth={2}></line>
-                <g className='min' transform={`translate(${minLoc}, 0)`} cursor={'pointer'}>
+                <g className='min' transform={`translate(${minLoc}, 0)`} cursor={'e-resize'}>
                     <text opacity={0} y={-20} fill={'white'} textAnchor={'middle'}>{x.invert(minLoc).toFixed(2)}</text>
                     <circle r={radius(minLoc)} fill={'white'}></circle>
                 </g>
-                <g className='max' transform={`translate(${maxLoc}, 0)`} cursor={'pointer'}>
+                <g className='max' transform={`translate(${maxLoc}, 0)`} cursor={'e-resize'}>
                     <text opacity={0} y={-20} fill={'white'} textAnchor={'middle'}>{x.invert(maxLoc).toFixed(2)}</text>
                     <circle r={radius(maxLoc)} fill={'white'}></circle>
                 </g>
