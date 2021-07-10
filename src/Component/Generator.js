@@ -75,7 +75,7 @@ function Generator(props) {
               .duration(300)
               .style('opacity', 1);
           })
-          .on("mouseout", function (d, i) {
+          .on("mouseout", function (event, data) {
             var tooltipSVG = d3.select('.tooltip');
             tooltipSVG.transition()
               .duration(300)

@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import React from 'react';
 import '../Styles/Sensor.css';
+import Tooltip from './Tooltip';
 
 const margin = { top: 10, right: 10, bottom: 10, left: 10 },
     width = 975 - margin.left - margin.right,
@@ -10,6 +11,7 @@ function Sensor(props) {
     const { generator } = props;
 
     const [data, setData] = React.useState([]);
+    const [tooltip, setTooltip] = React.useState();
 
     const drawSensor = React.useCallback(
         () => {
@@ -17,7 +19,7 @@ function Sensor(props) {
                 .domain([0, 25, 50, 75, 100])
                 .range(['#000000', '#294056', '#4682b4', '#a7bed9', '#ffffff'])
 
-            var sensor = d3.select('.grid').selectAll('.sensor-rect').data(data);
+            var sensor = d3.select('.grid').select('.data').selectAll('.sensor-rect').data(data);
 
             var NCol = Math.ceil(Math.sqrt(data.length));
             var NRow = Math.ceil(data.length / NCol);
@@ -29,16 +31,28 @@ function Sensor(props) {
                 .attr('fill', (d, i) => colorScale(100 * i / data.length))
                 .attr('x', (d, i) => (i % NCol) * (Math.floor(400 / NCol)))
                 .attr('y', (d, i) => Math.floor(i / NCol) * (Math.floor(height / NRow)))
-                .on('mouseover', function (event, data) {
-
+                .on('mousemove', function (event, data) {
+                    setTooltip(`${data.Name} (0 W)`);
+                    var tooltipSVG = d3.select('.grid').select('.tooltip');
+                    tooltipSVG
+                        .attr('transform', `translate(${d3.pointer(event)[0] + 10}, ${d3.pointer(event)[1] + 10})`)
+                        .transition()
+                        .duration(300)
+                        .style('opacity', 1);
                 })
+                .on("mouseout", function (event, data) {
+                    var tooltipSVG = d3.select('.grid').select('.tooltip');
+                    tooltipSVG.transition()
+                      .duration(300)
+                      .style('opacity', 0);
+                  })
 
             var linearGradient = d3.select('#linear-gradient');
-            
+
             linearGradient.selectAll('stop')
                 .data([
                     { offset: '0%', color: '#000000' },
-                    { offset: '25%', color: '#294056'},
+                    { offset: '25%', color: '#294056' },
                     { offset: '50%', color: '#4682b4' },
                     { offset: '75%', color: '#a7bed9' },
                     { offset: '100%', color: '#ffffff' },
@@ -49,7 +63,7 @@ function Sensor(props) {
                 .attr('stop-color', d => d.color);
 
             var legend = d3.select('.legend').select('rect');
-            
+
             legend
                 .style('fill', 'url(#linear-gradient)')
         }, [data],
@@ -78,7 +92,10 @@ function Sensor(props) {
             </h4>
             <div className='generator-grid'>
                 <svg className='grid-svg' viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}>
-                    <g className='grid' transform={`translate(${width / 2 - 400 / 2}, ${height / 2 - 400 / 2})`} />
+                    <g className='grid' transform={`translate(${width / 2 - 400 / 2}, ${height / 2 - 400 / 2})`}>
+                        <g className="data" />
+                        <Tooltip width={100} height={32} text={tooltip} />
+                    </g>
                     <g className='legend' transform={`translate(${margin.left}, ${height - margin.bottom})`}>
                         <text fill='white' fontSize='12' y={-20}>Power Output (W)</text>
                         <text fill='white' fontSize='12'>0</text>

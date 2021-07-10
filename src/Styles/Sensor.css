@@ -26,6 +26,7 @@
 .sensor-rect {
   stroke: white;
   stroke-width: 1;
+  cursor: pointer;
 }
 
 .sensor-text {
