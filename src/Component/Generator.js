@@ -30,6 +30,26 @@ function Generator(props) {
     })
   }
 
+  // const getWeather = React.useCallback(
+  //   () => {
+  //     if (generator != null) {
+  //       d3.json(`https://api.openweathermap.org/data/2.5/find?lat=${generator.Latitude}&lon=${generator.Longitude}&cnt=1&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
+  //         .then((weather) => {
+  //           setGenerator(generator);
+  //           console.log(weather);
+  //         })
+  //     }
+  //   }, [generator]
+  // )
+  const getWeather = (generator) => {
+    if (generator != null) {
+      d3.json(`https://api.openweathermap.org/data/2.5/find?lat=${generator.Latitude}&lon=${generator.Longitude}&cnt=1&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
+        .then((weather) => {
+          setGenerator({ ...generator, temperature: weather.list[0].main.temp, weather: weather.list[0].weather[0] });
+        })
+    }
+  }
+
   const drawMap = React.useCallback(
     () => {
       if (map != null) {
@@ -66,7 +86,7 @@ function Generator(props) {
           .attr("r", d => radius(d.Capacity))
           .on("click", function (event, data) {
             onClick(data);
-            setGenerator(data);
+            getWeather(data);
 
             // Set Active Circle
             d3.selectAll(".circle").classed("active", false);
@@ -84,12 +104,12 @@ function Generator(props) {
               .transition()
               .duration(750)
               .attr('opacity', 1)
-              .attr('y', height / 2)
+              .attr('y', height / 2 + 20)
           })
           .on("mousemove", function (event, data) {
             if (!d3.select(this).classed("active")) {
               setTooltip(`${data.Name} - ${data.Capacity} MW`);
-              var tooltipSVG = d3.select('.tooltip');
+              const tooltipSVG = d3.select('.tooltip');
               tooltipSVG
                 .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
                 .transition()
@@ -97,19 +117,19 @@ function Generator(props) {
                 .style('opacity', 1);
             }
             else {
-              var tooltipSVG = d3.select('.tooltip');
+              const tooltipSVG = d3.select('.tooltip');
               tooltipSVG.style('opacity', 0);
             }
           })
           .on("mouseout", function (event, data) {
             if (!d3.select(this).classed("active")) {
-              var tooltipSVG = d3.select('.tooltip');
+              const tooltipSVG = d3.select('.tooltip');
               tooltipSVG.transition()
                 .duration(300)
                 .style('opacity', 0);
             }
             else {
-              var tooltipSVG = d3.select('.tooltip');
+              const tooltipSVG = d3.select('.tooltip');
               tooltipSVG.style('opacity', 0);
             }
           })
@@ -155,7 +175,7 @@ function Generator(props) {
         .attr('opacity', 0)
         .attr('y', height)
         .on('end', () => setGenerator(null))
-    }
+    }, [onClick]
   )
 
   React.useEffect(() => {
@@ -192,7 +212,7 @@ function Generator(props) {
           <g className="data" />
           <Tooltip width={300} height={20} text={tooltip} />
         </g>
-        <foreignObject opacity={0} className="generator-detail" x={width / 2 + 140} y={height} width={width / 2 - 140} height={height / 2}>
+        <foreignObject opacity={0} className="generator-detail" x={width / 2 + 140} y={height} width={width / 2 - 140} height={height / 2 - 20}>
           <div className="detail-container">
             <div className="close">
               <FontAwesomeIcon icon={faTimes} color={'white'} onClick={onClickClose} />
@@ -200,12 +220,8 @@ function Generator(props) {
             <span className="font-weight-bold">{generator?.Name}</span>
             <div className="detail-table">
               <div className="row">
-                <FontAwesomeIcon icon={faSun} size='5x' />
-                <span className="value"><span className="number">32</span>&#176;C</span>
-              </div>
-              <div className="row custom-border">
-                <span className="label">Code</span>
-                <span className="value">{generator?.Code}</span>
+                <img className="weather-icon" src={`http://openweathermap.org/img/wn/${generator?.weather?.icon}@4x.png`} />
+                <span className="value"><span className="number">{generator?.temperature.toFixed(1)}</span>&#176;C</span>
               </div>
               <div className="row custom-border">
                 <span className="label">Name</span>
@@ -216,12 +232,12 @@ function Generator(props) {
                 <span className="value">{generator?.Capacity} MW</span>
               </div>
               <div className="row custom-border">
-                <span className="label">Longitude</span>
-                <span className="value">{generator?.Longitude}</span>
-              </div>
-              <div className="row custom-border">
                 <span className="label">Latitude</span>
                 <span className="value">{generator?.Latitude}</span>
+              </div>
+              <div className="row custom-border">
+                <span className="label">Longitude</span>
+                <span className="value">{generator?.Longitude}</span>
               </div>
             </div>
           </div>

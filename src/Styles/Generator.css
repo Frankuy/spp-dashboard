@@ -66,6 +66,10 @@
   font-size: 4em;
 }
 
+.weather-icon {
+  width: 120px;
+}
+
 @media (max-width: 1024px) {
   .App_generator {
     width: 100%;
