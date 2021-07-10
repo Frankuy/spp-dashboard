@@ -29,6 +29,11 @@
   cursor: pointer;
 }
 
+.sensor-rect.active {
+  stroke: red;
+  stroke-width: 2;
+}
+
 .sensor-text {
   fill: white;
   stroke: none;

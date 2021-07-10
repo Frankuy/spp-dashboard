@@ -46,6 +46,10 @@ function Sensor(props) {
                       .duration(300)
                       .style('opacity', 0);
                   })
+                .on("click", function (event, data) {
+                    d3.selectAll(".sensor-rect").classed("active", false);
+                    d3.select(this).classed("active", !d3.select(this).classed("active"));
+                })
 
             var linearGradient = d3.select('#linear-gradient');
 
