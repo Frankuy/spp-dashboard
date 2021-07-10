@@ -16,6 +16,7 @@ function Generator(props) {
   const [map, setMap] = React.useState(null);
   const [data, setData] = React.useState([]);
   const [tooltip, setTooltip] = React.useState();
+  const [generator, setGenerator] = React.useState();
 
   const getMap = () => {
     d3.json('india_state.geojson').then((map) => {
@@ -65,6 +66,7 @@ function Generator(props) {
           .attr("r", d => radius(d.Capacity))
           .on("click", function (event, data) {
             onClick(data);
+            setGenerator(data);
 
             // Set Active Circle
             d3.selectAll(".circle").classed("active", false);
@@ -134,6 +136,8 @@ function Generator(props) {
 
   const onClickClose = React.useCallback(
     () => {
+      onClick(null);
+
       d3.selectAll(".circle").classed("active", false);
 
       var mapContainer = d3.select('.map-container');
@@ -150,6 +154,7 @@ function Generator(props) {
         .duration(750)
         .attr('opacity', 0)
         .attr('y', height)
+        .on('end', () => setGenerator(null))
     }
   )
 
@@ -192,7 +197,7 @@ function Generator(props) {
             <div className="close">
               <FontAwesomeIcon icon={faTimes} color={'white'} onClick={onClickClose} />
             </div>
-            <span className="font-weight-bold">Kamuthi Solar Power Plant</span>
+            <span className="font-weight-bold">{generator?.Name}</span>
             <div className="detail-table">
               <div className="row">
                 <FontAwesomeIcon icon={faSun} size='5x' />
@@ -200,23 +205,23 @@ function Generator(props) {
               </div>
               <div className="row custom-border">
                 <span className="label">Code</span>
-                <span className="value">1</span>
+                <span className="value">{generator?.Code}</span>
               </div>
               <div className="row custom-border">
                 <span className="label">Name</span>
-                <span className="value">ASDASDASDASD</span>
+                <span className="value">{generator?.Name}</span>
               </div>
               <div className="row custom-border">
                 <span className="label">Capacity</span>
-                <span className="value">200 MW</span>
+                <span className="value">{generator?.Capacity} MW</span>
               </div>
               <div className="row custom-border">
                 <span className="label">Longitude</span>
-                <span className="value">200 MW</span>
+                <span className="value">{generator?.Longitude}</span>
               </div>
               <div className="row custom-border">
                 <span className="label">Latitude</span>
-                <span className="value">200 MW</span>
+                <span className="value">{generator?.Latitude}</span>
               </div>
             </div>
           </div>
