@@ -11,3 +11,13 @@
   margin: 0;
   min-height: 100vh;
 }
+
+.detail {
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--secondary-color);
+  color: whitesmoke;
+  border-radius: 12px;
+}

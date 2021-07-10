@@ -10,7 +10,9 @@ const margin = { top: 10, right: 10, bottom: 10, left: 10 },
   width = 975 - margin.left - margin.right,
   height = 810 - margin.top - margin.bottom;
 
-function Generator() {
+function Generator(props) {
+  const { onClick } = props;
+
   const [map, setMap] = React.useState(null);
   const [data, setData] = React.useState([]);
   const [tooltip, setTooltip] = React.useState();
@@ -43,64 +45,63 @@ function Generator() {
     }
   }, [map])
 
-  const drawData = React.useCallback(() => {
-    if (map != null && data.length > 0) {
-      var projection = d3.geoMercator().fitSize([width, height - 200], map);
+  const drawData = React.useCallback(
+    () => {
+      if (map != null && data.length > 0) {
+        var projection = d3.geoMercator().fitSize([width, height - 200], map);
 
+        var radius = d3.scaleSqrt().domain(d3.extent(data, d => d.Capacity)).range([8, 16]).clamp(true)
+
+        // Draw Data as Circle
+        var circleSVG = d3.select(".data").selectAll(".circle").data(data);
+        circleSVG
+          .enter()
+          .append("circle")
+          .attr("class", "circle")
+          .attr("cx", d => projection([d.Longitude, d.Latitude])[0])
+          .attr("cy", d => projection([d.Longitude, d.Latitude])[1])
+          .attr("r", d => radius(d.Capacity))
+          .on("click", function (event, data) {
+            onClick(data);
+            d3.selectAll(".circle").classed("active", false);
+            d3.select(this).classed("active", !d3.select(this).classed("active"));
+          })
+          .on("mousemove", function (event, data) {
+            setTooltip(`${data.Name} - ${data.Capacity} MW`);
+            var tooltipSVG = d3.select('.tooltip');
+            tooltipSVG
+              .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
+              .transition()
+              .duration(300)
+              .style('opacity', 1);
+          })
+          .on("mouseout", function (d, i) {
+            var tooltipSVG = d3.select('.tooltip');
+            tooltipSVG.transition()
+              .duration(300)
+              .style('opacity', 0);
+          })
+        circleSVG.exit().remove();
+      }
+    }, [map, data, onClick])
+
+  const onChangeSlider = React.useCallback(
+    (min, max) => {
       var radius = d3.scaleSqrt().domain(d3.extent(data, d => d.Capacity)).range([8, 16]).clamp(true)
-
-      // Draw Data as Circle
-      var circleSVG = d3.select(".data").selectAll(".circle").data(data);
-      circleSVG
-        .enter()
-        .append("circle")
-        .attr("class", "circle")
-        .attr("cx", d => projection([d.Longitude, d.Latitude])[0])
-        .attr("cy", d => projection([d.Longitude, d.Latitude])[1])
-        .attr("r", d => radius(d.Capacity))
-        .on("click", function (d, i) {
-          d3.selectAll(".circle").classed("active", false);
-          d3.select(this).classed("active", !d3.select(this).classed("active"))
+      var circles = d3.selectAll(".circle");
+      circles
+        .transition()
+        .duration(100)
+        .attr('r', d => {
+          if (d.Capacity >= min && d.Capacity <= max) {
+            return radius(d.Capacity);
+          }
+          return 0;
         })
-        .on("mousemove", function (event, data) {
-          setTooltip(`${data.Name} - ${data.Capacity} MW`)
-          var tooltipSVG = d3.select('.tooltip')
-          tooltipSVG
-            .attr('transform', `translate(${d3.pointer(event)[0] - 300 / 2}, ${d3.pointer(event)[1] + 40})`)
-            .transition()
-            .duration(300)
-            .style('opacity', 1);
-        })
-        .on("mouseout", function (d, i) {
-          var tooltipSVG = d3.select('.tooltip')
-          tooltipSVG.transition()
-            .duration(300)
-            .style('opacity', 0);
-        })
-      circleSVG.exit().remove();
-    }
-  }, [map, data])
-
-  const onChangeSlider = React.useCallback((min, max) => {
-    var radius = d3.scaleSqrt().domain(d3.extent(data, d => d.Capacity)).range([8, 16]).clamp(true)
-    var circles = d3.selectAll(".circle");
-    circles
-      .transition()
-      .duration(100)
-      .attr('r', d => {
-        if (d.Capacity >= min && d.Capacity <= max) {
-          return radius(d.Capacity);
-        }
-        return 0;
-      })
-  }, [data]);
+    }, [data]);
 
   React.useEffect(() => {
     getMap();
-    // let id = setInterval(() => {
-    //   fetchData();
-    // }, 1000);
-    // return () => clearInterval(id);
     fetchData();
   }, [])
 
