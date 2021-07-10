@@ -6,6 +6,19 @@
   margin: 0px 4px;
 }
 
+.generator-name {
+  font-size: 1.2em;
+  padding: 1em 1em 0em 1em;
+}
+
+.generator-grid {
+  padding: 1em 1em;
+}
+
+.grid-svg {
+  border: 1px solid white;
+}
+
 .sensor {
   cursor: pointer;
 }
