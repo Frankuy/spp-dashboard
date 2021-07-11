@@ -1,90 +1,115 @@
-import { axisBottom, axisLeft, curveBasis, easeLinear, extent, line, max, scaleLinear, scaleTime, select, timeParse, timeSecond } from 'd3';
+import * as d3 from 'd3';
 import moment from 'moment';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import '../Styles/Graph.css';
+import Tooltip from './Tooltip';
 
-function Graph(props) {
-    const margin = { top: 10, right: 30, bottom: 30, left: 60 },
-        width = 975 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+const margin = { top: 10, right: 30, bottom: 30, left: 60 },
+    width = 975 - margin.left - margin.right,
+    height = 280 - margin.top - margin.bottom;
 
-    const [data, setData] = useState([]);
+function Graph() {
+    const data = React.useRef([]);
+    const [tooltip, setTooltip] = React.useState('');
 
-    const svgRef = useRef();
+    const drawGraph = (data) => {
+        const x = d3.scaleTime()
+            .domain(d3.extent(data.slice(0, 10), d => d.timestamp))
+            .range([0, width])
+            .clamp(true);
 
-    const drawGraph = useCallback(
-        () => {
-            // console.log(data.length)
-            if (data.length) {
-                const svg = select(svgRef.current)
-                    .attr("viewBox", [0, 0, width + margin.left + margin.right, height + margin.top + margin.bottom]);
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data.slice(0, 10), d => +d.dc_power)])
+            .range([height, 0]);
 
-                svg.selectAll("*").remove();
+        const svg = d3.select('.graph-svg');
 
-                const container = svg
-                    .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // Add X axis
+        const xAxis = svg.select('.x-axis');
+        xAxis.call(d3.axisBottom(x).ticks(d3.timeSecond.every(1)));
 
-                // Add X axis
-                var x = scaleTime()
-                    .domain(extent(data.slice(0, 10), d => d.timestamp))
-                    .range([0, width]);
+        // Add Y axis
+        const yAxis = svg.select('.y-axis');
+        yAxis.call(d3.axisLeft(y));
 
-                container.append("g")
-                    .attr("class", "axis")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(axisBottom(x).ticks(timeSecond.every(1)));
-
-                // Add Y axis
-                var y = scaleLinear()
-                    .domain([0, max(data.slice(0, 10), d => +d.dc_power)])
-                    .range([height, 0]);
-
-                container.append("g")
-                    .attr("class", "axis")
-                    .call(axisLeft(y));
-
-                // Add the line
-                container.append("path")
-                    .datum(data.slice(0, 10))
-                    .attr("fill", "none")
-                    .attr("stroke", "red")
-                    .attr("stroke-width", 1.5)
-                    .attr("d", line().curve(curveBasis).x(d => x(d.timestamp)).y(d => y(+d.dc_power)))
+        // Add data as circle
+        const circles = svg.select('.data-circle').selectAll('circle').data(data.slice(0, 10));
+        circles
+            .join('circle')
+            .attr('cx', d => x(d.timestamp))
+            .attr('cy', d => y(d.dc_power))
+            .attr('r', 4)
+            .attr('fill', 'red')
+            .on('mouseover', function (event, data) {
+                setTooltip('TEST');
+                const tooltipSVG = d3.select('.graph-container').select('.tooltip');
+                tooltipSVG
+                    .attr('transform', `translate(${d3.pointer(event)[0] + 10}, ${d3.pointer(event)[1] + 10})`)
                     .transition()
                     .duration(300)
-                    .ease(easeLinear)
-            }
-        },
-        [width, height, data],
-    )
+                    .style('opacity', 1);
 
-    const fetchData = () => {
-        var new_data = {
-            timestamp: timeParse("%d-%m-%Y %H:%M:%S")(moment(new Date()).format("DD-MM-YYYY HH:mm:ss")),
-            dc_power: Math.random() * 10,
-            ac_power: Math.random() * 10,
-        }
+                // const container = d3.select('.graph-container').select('foreignObject');
+                // container
+                //     .attr('x', d3.pointer(event)[0])
+                //     .attr('y', d3.pointer(event)[1])
+                //     .html(`
+                //         <div className="tooltip">
+                //             test
+                //         </div>
+                //     `)
+            })
+            .on('mouseout', function (event, data) {
+                setTooltip('');
+                const tooltipSVG = d3.select('.graph-container').select('.tooltip');
+                tooltipSVG
+                    .transition()
+                    .duration(300)
+                    .style('opacity', 0);
+            });
 
-        setData(old_data => [new_data, ...old_data]);
+        // Add the line
+        const line = svg.select('.data-line').select('path');
+        line.datum(data.slice(0, 10))
+            .attr('fill', 'none')
+            .attr('stroke', 'red')
+            .attr('stroke-width', 1.5)
+            .attr('d', d3.line().x(d => x(d.timestamp)).y(d => y(+d.dc_power)));
     }
 
-    useEffect(() => {
-        // let id = setInterval(() => {
-        //     fetchData();
-        // }, 1000);
-        // return () => clearInterval(id);
-    }, [])
+    const fetchData = React.useCallback(
+        () => {
+            var new_data = {
+                timestamp: d3.timeParse("%d-%m-%Y %H:%M:%S")(moment(new Date()).format("DD-MM-YYYY HH:mm:ss")),
+                dc_power: Math.random() * 10,
+                ac_power: Math.random() * 10,
+            }
 
-    useEffect(() => {
-        drawGraph()
-    }, [drawGraph])
+            data.current = [new_data, ...data.current];
+            drawGraph(data.current);
+        }, []
+    )
+
+    React.useEffect(() => {
+        for (var i = 0; i < 1; i++) {
+            setTimeout(() => {
+                fetchData();
+            }, 1000 * i)
+        }
+    }, [fetchData])
 
     return (
         <div className="App_graph">
-            <svg
-                ref={svgRef}
-            >
+            <svg className="graph-svg" viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}>
+                <g className="graph-container" transform={`translate(${margin.left}, ${margin.top})`}>
+                    <g className="axis x-axis" transform={`translate(0, ${height})`} />
+                    <g className="axis y-axis" />
+                    <g className="data-circle" />
+                    <g className="data-line">
+                        <path />
+                    </g>
+                    <Tooltip width={100} height={24} text={tooltip} />
+                </g>
             </svg>
         </div>
     )

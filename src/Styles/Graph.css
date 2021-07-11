@@ -1,7 +1,7 @@
 .App_graph {
   color: white;
   background-color: var(--secondary-color);
-  border-radius: 12px;
+  border-radius: 0px 0px 12px 12px;
   box-sizing: border-box;
   margin: 0px 4px;
 }
@@ -13,4 +13,10 @@
 
 .axis text {
   fill: white;
+}
+
+.tooltip {
+  width: 100%;
+  height: 100%;
+  background-color: red;
 }
