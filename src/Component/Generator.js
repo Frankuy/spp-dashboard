@@ -199,7 +199,9 @@ function Generator(props) {
         <g className="map-container" transform={`translate(${margin.left}, ${margin.top + 160})`}>
           <g className="map" />
           <g className="data" />
-          <Tooltip width={300} height={20} text={tooltip} />
+          <Tooltip width={300} height={20}>
+            {tooltip}
+          </Tooltip>
         </g>
         <foreignObject opacity={0} className="generator-detail" x={width / 2 + 140} y={height} width={width / 2 - 140} height={height / 2 - 20}>
           <div className="detail-container">
@@ -209,7 +211,7 @@ function Generator(props) {
             <span className="font-weight-bold">{generator?.Name}</span>
             <div className="detail-table">
               <div className="row">
-                <img className="weather-icon" src={generator != null && `http://openweathermap.org/img/wn/${generator?.weather?.icon}@4x.png`} alt="weather-icon" />
+                <img className="weather-icon" src={generator != null ? `http://openweathermap.org/img/wn/${generator?.weather?.icon}@4x.png` : undefined} alt="weather-icon" />
                 <span className="value"><span className="number">{generator?.temperature.toFixed(1)}</span>&#176;C</span>
               </div>
               <div className="row custom-border">

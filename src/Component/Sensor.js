@@ -43,9 +43,9 @@ function Sensor(props) {
                 .on("mouseout", function (event, data) {
                     var tooltipSVG = d3.select('.grid').select('.tooltip');
                     tooltipSVG.transition()
-                      .duration(300)
-                      .style('opacity', 0);
-                  })
+                        .duration(300)
+                        .style('opacity', 0);
+                })
                 .on("click", function (event, data) {
                     d3.selectAll(".sensor-rect").classed("active", false);
                     d3.select(this).classed("active", !d3.select(this).classed("active"));
@@ -98,7 +98,9 @@ function Sensor(props) {
                 <svg className='grid-svg' viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}>
                     <g className='grid' transform={`translate(${width / 2 - 400 / 2}, ${height / 2 - 400 / 2})`}>
                         <g className="data" />
-                        <Tooltip width={100} height={32} text={tooltip} />
+                        <Tooltip width={120} height={32}>
+                            {tooltip}
+                        </Tooltip>
                     </g>
                     <g className='legend' transform={`translate(${margin.left}, ${height - margin.bottom})`}>
                         <text fill='white' fontSize='12' y={-20}>Power Output (W)</text>

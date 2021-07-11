@@ -38,26 +38,21 @@ function Graph() {
             .join('circle')
             .attr('cx', d => x(d.timestamp))
             .attr('cy', d => y(d.dc_power))
-            .attr('r', 4)
+            .attr('r', 6)
             .attr('fill', 'red')
             .on('mouseover', function (event, data) {
-                setTooltip('TEST');
+                setTooltip(
+                    <div>
+                        {moment(data.timestamp).format("DD-MM-YYYY HH:mm:ss")}<br />
+                        Power Output: <b>{data.dc_power.toFixed(2)} W</b>
+                    </div>
+                );
                 const tooltipSVG = d3.select('.graph-container').select('.tooltip');
                 tooltipSVG
                     .attr('transform', `translate(${d3.pointer(event)[0] + 10}, ${d3.pointer(event)[1] + 10})`)
                     .transition()
                     .duration(300)
                     .style('opacity', 1);
-
-                // const container = d3.select('.graph-container').select('foreignObject');
-                // container
-                //     .attr('x', d3.pointer(event)[0])
-                //     .attr('y', d3.pointer(event)[1])
-                //     .html(`
-                //         <div className="tooltip">
-                //             test
-                //         </div>
-                //     `)
             })
             .on('mouseout', function (event, data) {
                 setTooltip('');
@@ -108,7 +103,9 @@ function Graph() {
                     <g className="data-line">
                         <path />
                     </g>
-                    <Tooltip width={100} height={24} text={tooltip} />
+                    <Tooltip width={200} height={48}>
+                        {tooltip}
+                    </Tooltip>
                 </g>
             </svg>
         </div>
