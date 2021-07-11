@@ -1,7 +1,7 @@
 .App_sensor {
   color: white;
   background-color: var(--secondary-color);
-  border-radius: 12px;
+  border-radius: 12px 12px 0px 0px;
   box-sizing: border-box;
   margin: 0px 4px;
 }
