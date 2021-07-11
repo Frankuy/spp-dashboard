@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import '../Styles/Generator.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faTimes, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faTimes } from '@fortawesome/free-solid-svg-icons';
 import Slider from './Slider';
 import Tooltip from './Tooltip';
 
@@ -30,17 +30,6 @@ function Generator(props) {
     })
   }
 
-  // const getWeather = React.useCallback(
-  //   () => {
-  //     if (generator != null) {
-  //       d3.json(`https://api.openweathermap.org/data/2.5/find?lat=${generator.Latitude}&lon=${generator.Longitude}&cnt=1&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
-  //         .then((weather) => {
-  //           setGenerator(generator);
-  //           console.log(weather);
-  //         })
-  //     }
-  //   }, [generator]
-  // )
   const getWeather = (generator) => {
     if (generator != null) {
       d3.json(`https://api.openweathermap.org/data/2.5/find?lat=${generator.Latitude}&lon=${generator.Longitude}&cnt=1&units=metric&appid=${process.env.REACT_APP_WEATHER_API_KEY}`)
@@ -220,7 +209,7 @@ function Generator(props) {
             <span className="font-weight-bold">{generator?.Name}</span>
             <div className="detail-table">
               <div className="row">
-                <img className="weather-icon" src={`http://openweathermap.org/img/wn/${generator?.weather?.icon}@4x.png`} />
+                <img className="weather-icon" src={generator != null && `http://openweathermap.org/img/wn/${generator?.weather?.icon}@4x.png`} alt="weather-icon" />
                 <span className="value"><span className="number">{generator?.temperature.toFixed(1)}</span>&#176;C</span>
               </div>
               <div className="row custom-border">

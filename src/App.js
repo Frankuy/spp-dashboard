@@ -3,7 +3,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Generator from './Component/Generator';
-// import Graph from './Component/Graph';
+import Graph from './Component/Graph';
 import Header from './Component/Header';
 import Sensor from './Component/Sensor';
 
@@ -34,18 +34,15 @@ function App() {
                   <Col md={12} sm={6}>
                     <Sensor generator={generator} />
                   </Col>
+                  <Col md={12} sm={6}>
+                    <Graph />
+                  </Col>
                 </Row>
                 :
                 <div className="detail">
                   Click One Generator To Monitor Sensor
                 </div>
-              // <Row>
-              //   <Col md={12} sm={6}>
-
-              //   </Col>
-              // </Row>
             }
-            {/* <Col md={12} sm={6}><Graph width={975} height={300} margin={margin} /></Col> */}
           </Col>
         </Row>
       </Container>
