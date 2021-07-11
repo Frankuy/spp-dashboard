@@ -9,9 +9,14 @@ import Sensor from './Component/Sensor';
 
 function App() {
   const [generator, setGenerator] = React.useState();
+  const [sensor, setSensor] = React.useState();
 
   const onClickGenerator = React.useCallback((generator) => {
     setGenerator(generator);
+  }, []);
+
+  const onClickSensor = React.useCallback((sensor) => {
+    setSensor(sensor);
   }, []);
 
   return (
@@ -32,10 +37,12 @@ function App() {
                 ?
                 <Row>
                   <Col md={12} sm={6}>
-                    <Sensor generator={generator} />
+                    <Sensor generator={generator} onClick={onClickSensor} />
                   </Col>
                   <Col md={12} sm={6}>
-                    <Graph />
+                    {
+                      sensor && <Graph sensor={sensor} />
+                    }
                   </Col>
                 </Row>
                 :

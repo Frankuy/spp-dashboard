@@ -8,7 +8,7 @@ const margin = { top: 10, right: 10, bottom: 10, left: 10 },
     height = 450 - margin.top - margin.bottom;
 
 function Sensor(props) {
-    const { generator } = props;
+    const { generator, onClick } = props;
 
     const [data, setData] = React.useState([]);
     const [tooltip, setTooltip] = React.useState();
@@ -40,15 +40,16 @@ function Sensor(props) {
                         .duration(300)
                         .style('opacity', 1);
                 })
-                .on("mouseout", function (event, data) {
+                .on('mouseout', function (event, data) {
                     var tooltipSVG = d3.select('.grid').select('.tooltip');
                     tooltipSVG.transition()
                         .duration(300)
                         .style('opacity', 0);
                 })
-                .on("click", function (event, data) {
-                    d3.selectAll(".sensor-rect").classed("active", false);
-                    d3.select(this).classed("active", !d3.select(this).classed("active"));
+                .on('click', function (event, data) {
+                    onClick(data);
+                    d3.selectAll('.sensor-rect').classed('active', false);
+                    d3.select(this).classed('active', !d3.select(this).classed('active'));
                 })
 
             var linearGradient = d3.select('#linear-gradient');
@@ -70,7 +71,7 @@ function Sensor(props) {
 
             legend
                 .style('fill', 'url(#linear-gradient)')
-        }, [data],
+        }, [data, onClick],
     )
 
     const fetchData = React.useCallback(
@@ -97,7 +98,7 @@ function Sensor(props) {
             <div className='generator-grid'>
                 <svg className='grid-svg' viewBox={`0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`}>
                     <g className='grid' transform={`translate(${width / 2 - 400 / 2}, ${height / 2 - 400 / 2})`}>
-                        <g className="data" />
+                        <g className='data' />
                         <Tooltip width={120} height={32}>
                             {tooltip}
                         </Tooltip>

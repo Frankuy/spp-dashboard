@@ -8,7 +8,9 @@ const margin = { top: 10, right: 30, bottom: 30, left: 60 },
     width = 975 - margin.left - margin.right,
     height = 280 - margin.top - margin.bottom;
 
-function Graph() {
+function Graph(props) {
+    const { sensor } = props;
+
     const data = React.useRef([]);
     const [tooltip, setTooltip] = React.useState('');
 
@@ -26,7 +28,7 @@ function Graph() {
 
         // Add X axis
         const xAxis = svg.select('.x-axis');
-        xAxis.call(d3.axisBottom(x).ticks(d3.timeSecond.every(1)));
+        xAxis.call(d3.axisBottom(x).ticks(d3.timeSecond.every(1)).tickFormat(d3.timeFormat("%I:%M:%S")));
 
         // Add Y axis
         const yAxis = svg.select('.y-axis');
@@ -74,6 +76,7 @@ function Graph() {
 
     const fetchData = React.useCallback(
         () => {
+            console.log(sensor);
             var new_data = {
                 timestamp: d3.timeParse("%d-%m-%Y %H:%M:%S")(moment(new Date()).format("DD-MM-YYYY HH:mm:ss")),
                 dc_power: Math.random() * 10,
@@ -82,16 +85,19 @@ function Graph() {
 
             data.current = [new_data, ...data.current];
             drawGraph(data.current);
-        }, []
+        }, [sensor]
     )
 
     React.useEffect(() => {
-        for (var i = 0; i < 1; i++) {
-            setTimeout(() => {
-                fetchData();
-            }, 1000 * i)
-        }
+        let id = setInterval(() => {
+            fetchData();
+        }, 1000);
+        return () => clearInterval(id);
     }, [fetchData])
+
+    React.useEffect(() => {
+        data.current = [];
+    }, [sensor])
 
     return (
         <div className="App_graph">
